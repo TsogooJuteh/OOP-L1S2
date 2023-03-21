@@ -9,6 +9,9 @@ protected:
 	double* arr;
 public:
 	MyArrayParent(int cap) {
+		if (cap <= 0){
+			cap =100;
+		}
 		capacity = cap;
 		count = 0;
 		arr = new double[cap];
@@ -22,6 +25,9 @@ public:
 		}
 	}
 	MyArrayParent(int cap, int co, double* ptr) {
+		if (cap <= 0){
+			cap =100;
+		}
 		capacity = cap;
 		count = co;
 		arr = new double[cap];
@@ -230,7 +236,7 @@ int main() {
 	//mac.operator+(55);
 	//mac.display();
 
-	MyArrayChild a3(100, 5, ptr);
+	MyArrayChild a3(-5, 5, ptr);
 	//a3.display();
 	//a3.RemoveAt(2);
 	//a3.display();
