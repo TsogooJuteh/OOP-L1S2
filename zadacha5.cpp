@@ -1,8 +1,6 @@
 #include<iostream>
 #include<fstream>
 #include<typeinfo>
-#include<cstring>
-#include<string.h>
 
 using namespace std;
 
@@ -32,7 +30,7 @@ protected:
 	int height;
 	int width;
 public:
-	BaseMatrix(int Height = 4, int Width = 3) {
+	BaseMatrix(int Height, int Width) {
 		if (Height <= 0 || Width <= 0) {
 			throw Exception("Non-positive size of matrix");
 		}
@@ -54,7 +52,7 @@ public:
 			}
 		}
 	}
-	BaseMatrix(double** arr, int Height = 4, int Width = 3) {
+	BaseMatrix(double** arr, int Height, int Width) {
 		if (Height <= 0 || Width <= 0) {
 			throw Exception("Non-Positive size of matrix");
 		}
@@ -117,37 +115,49 @@ public:
 		if (row < 0 || column < 0 || row >= height || column >= width) throw Exception("Index is out of bounds");
 		return ptr[row][column];
 	}
-//	BaseMatrix nocolumnzeroes() {
+	void removezerocolumns() {
+		int numzerocols = 0;
+		for (int j = 0; j < width; j++) {
+			bool hasZero = false;
+			for (int i = 0; i < height; i++) {
+				if (ptr[i][j] == 0) {
+					hasZero = true;
+					break;
+				}
+			}
+			if (hasZero) {
+				numzerocols++;
+			}
+			else if (numzerocols > 0) {
+				for (int i = 0; i < height; i++) {
+					ptr[i][j - numzerocols] = ptr[i][j];
+					ptr[i][j] = 0;
+				}
+			}
+		}
+		width -= numzerocols;
+	}
+//	void removezerocolumns() {
 //		int newwidth = width;
-//		for (int j = 0; j < width; j++) {
-//			bool containzero = false;
+//		for (int j = width - 1; j >= 0; j--) {
+//			bool haszero = false;
 //			for (int i = 0; i < height; i++) {
-//				if (ptr[i][j] == 0) {
-//					containzero = true;
-//					break;
-//				}
-//			}
-//			if (containzero) {
-//				newwidth--;
-//			}
-//		}
-//		double** newPtr = new double* [height];
-//		for (int i = 0; i < height; i++) {
-//			newPtr[i] = new double[newwidth];
-//			int newcol = 0;
-//			for (int j = 0; j < width; j++) {
 //				if (ptr[i][j] != 0) {
-//					newPtr[i][newcol] = ptr[i][j];
-//					newcol++;
+//					haszero = true;
+//				}
+//				if (!haszero) {
+//					ptr[i][width] = ptr[i][j];
+//				}
+//			}
+//			if (!haszero) {
+//				for (int i = 0; i < height; i++) {
+//					for (int k = width - 1; k >=0; k--) {
+//						ptr[i][k] = ptr[i][k - 1];
+//					}
+//					ptr[i][0] = ptr[i][width];
 //				}
 //			}
 //		}
-//		BaseMatrix result(newPtr, height, newwidth);
-//		for (int i = 0; i < height; i++) {
-//			delete[] newPtr[i];
-//		}
-//		delete[] newPtr;
-//		return result;
 //	}
 	friend ostream& operator << (ostream& ustream, BaseMatrix obj);
 	friend istream& operator >> (istream& ustream, BaseMatrix obj);
@@ -223,11 +233,11 @@ int main() {
 	DerClass Dm(4,3);
 	Dm.fillArray();
 	Dm.print();
-	BaseMatrix BM;
+	BaseMatrix BM(12,12);
 	BM.input();
 	BM.print();
-	//BM.nocolumnzeroes();
-	//BM.print();
+	BM.removezerocolumns();
+	BM.print();
 	//BaseMatrix M;
 	//cin >> M;
 	//ofstream fout("out.txt");
