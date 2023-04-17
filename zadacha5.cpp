@@ -4,6 +4,7 @@
 
 using namespace std;
 
+template <class T>
 class Exception : public std::exception {
 protected:
 	char* str;
@@ -24,13 +25,40 @@ public:
 	}
 };
 
+template <class T>
+class InvalidOperationException : public Exception<T> {
+public:
+	InvalidOperationException(const char* s): Exception<T>(s){}
+};
+
+template <class T>
+class IndexOutOfBoundsException : public Exception<T> {
+	IndexOutOfBoundsException(const char* s): Exception<T>(s){}
+};
+
+template <class T>
+class WrongSizeException : public Exception<T> {
+	WrongSizeException(const char* s) : Exception<T>(s) {}
+};
+
+template <class T>
+class NonPositiveSizeException : public Exception<T> {
+	NonPositiveSizeException(const char* s): Exception<T>(s){}
+};
+
+template <class T>
+class TooLargeSizeException : public Exception<T> {
+	TooLargeSizeException(const char* s) : Exception<T>(s){}
+};
+
+template <class T>
 class BaseMatrix {
 protected:
 	double** ptr;
 	int height;
 	int width;
 public:
-	BaseMatrix(int Height, int Width) {
+	BaseMatrix(int Height = 4, int Width = 3) {
 		if (Height <= 0 || Width <= 0) {
 			throw Exception("Non-positive size of matrix");
 		}
@@ -52,7 +80,7 @@ public:
 			}
 		}
 	}
-	BaseMatrix(double** arr, int Height, int Width) {
+	BaseMatrix(double** arr, int Height = 4, int Width = 3) {
 		if (Height <= 0 || Width <= 0) {
 			throw Exception("Non-Positive size of matrix");
 		}
@@ -96,14 +124,14 @@ public:
 			ptr = NULL;
 		}
 	}
-	void input() {
+	virtual void input() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				cin >> ptr[i][j];
 			}
 		}
 	}
-	void print() {
+	virtual void print() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				cout << ptr[i][j] << " ";
@@ -116,7 +144,7 @@ public:
 		return ptr[row][column];
 	}
 	void removezerocolumns() {
-		int numzerocols = 0;
+		int numzerocols = 0;	
 		for (int j = 0; j < width; j++) {
 			bool hasZero = false;
 			for (int i = 0; i < height; i++) {
@@ -163,10 +191,11 @@ public:
 	friend istream& operator >> (istream& ustream, BaseMatrix obj);
 };
 
-class DerClass : public BaseMatrix {
+template <class T>
+class DerClass : public BaseMatrix<T> {
 public:
-	DerClass(int Height, int Width) : BaseMatrix(Height, Width) {};
-	DerClass(const DerClass& M) : BaseMatrix(M) {};
+	DerClass(int Height, int Width) : BaseMatrix<T>(Height, Width) {};
+	DerClass(const DerClass& M) : BaseMatrix<T>(M) {};
 	void fillArray() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -184,7 +213,8 @@ public:
 	}
 };
 
-ostream& operator << (ostream& ustream, BaseMatrix obj) {
+template <class T>
+ostream& operator << (ostream& ustream, BaseMatrix<T> obj) {
 	if (typeid(ustream).name() == typeid(ofstream).name()) {
 		ustream << obj.height << " " << obj.width << endl;
 		for (int i = 0; i < obj.height; i++) {
@@ -203,7 +233,8 @@ ostream& operator << (ostream& ustream, BaseMatrix obj) {
 	return ustream;
 }
 
-istream& operator >> (istream& ustream, BaseMatrix obj) {
+template <class T>
+istream& operator >> (istream& ustream, BaseMatrix<T> obj) {
 	if (typeid(ustream) == typeid(ifstream)) {
 		ustream >> obj.height >> obj.width;
 	}
@@ -222,37 +253,38 @@ ostream& my_manip(ostream& s) {
 	return s;
 }
 
+template <class T>
 int main() {
 	try {
-		BaseMatrix matrix(-2, 3);
+		BaseMatrix<T> matrix(-2, 3);
 	}
-	catch (Exception& e) {
+	catch (Exception<T>& e) {
 		cout << "\nException has been caught: " << "\n"; e.print();
 	}
 	cout << "\n";
-	DerClass Dm(4,3);
-	Dm.fillArray();
-	Dm.print();
-	BaseMatrix BM(12,12);
-	BM.input();
-	BM.print();
-	BM.removezerocolumns();
-	BM.print();
-	//BaseMatrix M;
-	//cin >> M;
-	//ofstream fout("out.txt");
-	//if (fout.is_open()) {
-	//	fout << M;
-	//	fout.close();
-	//}
-	//ifstream fin("out.txt");
-	//BaseMatrix M1;
-	//if (fin) {
-	//	fin >> M1;
-	//	fin.close();
-	//}
-	//cout << M1;
-	//char c1;
-	//cin >> c1;
+	//DerClass<T> Dm(4,3);
+	//Dm.fillArray();
+	//Dm.print();
+	//BaseMatrix<T> BM(4, 3);
+	//BM.input();
+	//BM.print();
+	//BM.removezerocolumns();
+	//BM.print();
+	BaseMatrix<T> M;
+	cin >> M;
+	ofstream fout; fout.open("in.txt");
+	if (fout.is_open()) {
+		fout << M;
+		fout.close();
+	}
+	ifstream fin("out.txt");
+	BaseMatrix<T> M1;
+	if (fin) {
+		fin >> M1;
+		fin.close();
+	}
+	cout << M1;
+	char c1;
+	cin >> c1;
 	return 0;
 }
