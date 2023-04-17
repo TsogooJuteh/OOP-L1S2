@@ -18,7 +18,7 @@ public:
 				for (int i = 0; i < len; i++) {
 					p[i] = ptr[i];
 				}
-				p[len] = '\0';
+				p[len - 1] = '\0';
 			}
 			
 		}
@@ -31,16 +31,17 @@ public:
 		len = 0;
 	}
 	~BaseString() {
-		if (p != 0) {
+		if (p != NULL) {
 			delete[] p;
 		}
 		len = 0;
 	}
-	int Length() { return len; }
-	int Capacity() { return capacity; }
-	char& operator[](int i) { return p[i]; }
-	BaseString& operator=(BaseString& s) {
+	int Length() const { return len; }
+	int Capacity() const { return capacity; }
+	char& operator[](int i) const { return p[i]; }
+	BaseString& operator=(const BaseString& s) {
 		if (this != &s) {
+			delete[] p;
 			len = s.Length();
 			capacity = s.capacity;
 			p = new char[len];
@@ -48,12 +49,12 @@ public:
 				for (int i = 0; i < len; i++) {
 					p[i] = s[i];
 				}
-				p[len] = '\0';
+				p[len - 1] = '\0';
 			}
 		}
 		return *this;
 	}
-	BaseString(BaseString& s) {
+	BaseString(const BaseString& s) {
 		len = s.Length();
 		capacity = s.capacity;
 		p = new char[len];
@@ -61,12 +62,14 @@ public:
 			for (int i = 0; i < len; i++) {
 				p[i] = s[i];
 			}
-			p[len] = '\0';
+			p[len - 1] = '\0';
 		}
 	}
 	virtual void print() {
-		int i = 0;
-		while (p[i] != '\0') { cout << p[i]; i++; }
+		if (p != NULL) {
+			int i = 0;
+			while (p[i] != '\0') { cout << p[i]; i++; }
+		}
 	}
 };
 
@@ -77,7 +80,7 @@ public:
 	VowelWord(int Capacity = 256) : BaseString(Capacity) {}
 	VowelWord(const VowelWord& s) : BaseString(s) {}
 	~VowelWord() {}
-	VowelWord& operator=(VowelWord& s) {
+	VowelWord& operator=(const VowelWord& s) {
 		if (this != &s){
 			delete[] p;
 			len = s.Length();
@@ -91,6 +94,10 @@ public:
 			}
 		}
 		return *this;
+	}
+	bool isvowel(char c) {
+		c = tolower(c);
+		return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
 	}
 	int countwords() {
 		int count = 0;
@@ -112,14 +119,10 @@ public:
 				vowel_start = false;
 			}
 		}
-		if (in_word && (vowel_start || isvowel(p[len - 2]))) {
+		if (in_word && (vowel_start || isvowel(p[len - 1]))) {
 			count++;
 		}
 		return count;
-	}
-	bool isvowel(char c) {
-		c = tolower(c);
-		return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
 	}
 };
 
