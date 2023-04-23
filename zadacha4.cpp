@@ -19,14 +19,28 @@ public:
 					p[i] = ptr[i];
 				}
 				p[len - 1] = '\0';
+			} else {
+				len = 0;
+				capacity = 0;
+				p = NULL;
 			}
-			
+		} else {
+			len = 0;
+			capacity = 0;
+			p = NULL;
 		}
 	}
 	BaseString(int Capacity = 256) {
 		if (Capacity > 0) {
 			capacity = Capacity;
 			p = new char[capacity];
+			if (p == NULL){
+				capacity = 0;
+				p = NULL;
+			}
+		} else {
+			capacity = 0;
+			p = NULL;
 		}
 		len = 0;
 	}
@@ -41,7 +55,9 @@ public:
 	char& operator[](int i) const { return p[i]; }
 	BaseString& operator=(const BaseString& s) {
 		if (this != &s) {
-			delete[] p;
+			if(p != NULL){
+				delete[] p;
+			}
 			len = s.Length();
 			capacity = s.capacity;
 			p = new char[len];
@@ -50,6 +66,10 @@ public:
 					p[i] = s[i];
 				}
 				p[len - 1] = '\0';
+			} else {
+				len = 0;
+				capacity = 0;
+				p = NULL;
 			}
 		}
 		return *this;
@@ -63,9 +83,13 @@ public:
 				p[i] = s[i];
 			}
 			p[len - 1] = '\0';
+		} else {
+			len = 0;
+			capacity = 0;
+			p = NULL;
 		}
 	}
-	virtual void print() {
+	virtual void print() const {
 		if (p != NULL) {
 			int i = 0;
 			while (p[i] != '\0') { cout << p[i]; i++; }
@@ -82,7 +106,9 @@ public:
 	~VowelWord() {}
 	VowelWord& operator=(const VowelWord& s) {
 		if (this != &s){
-			delete[] p;
+			if(p != NULL){
+				delete[] p;
+			}
 			len = s.Length();
 			capacity = s.capacity;
 			p = new char[capacity];
@@ -91,6 +117,10 @@ public:
 					p[i] = s[i];
 				}
 				p[len - 1] = '\0';
+			} else {
+				len = 0;
+				capacity = 0;
+				p = NULL;
 			}
 		}
 		return *this;
@@ -127,7 +157,7 @@ public:
 };
 
 int main() {
-	char str[] = "Hello , My name is World. What is your name, sir?:)";
+	char str[] = "Hello , My name is World. What is your name, sir?:)about myself";
 	VowelWord s(str);
 	s.print();
 	int count = s.countwords();

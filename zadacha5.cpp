@@ -1,10 +1,11 @@
 #include<iostream>
 #include<fstream>
+#include<cstring>
+#include<string.h>
 #include<typeinfo>
 
 using namespace std;
 
-template <class T>
 class Exception : public std::exception {
 protected:
 	char* str;
@@ -20,38 +21,32 @@ public:
 	~Exception() {
 		delete[] str;
 	}
-	virtual void print() {
+	virtual void print() const {
 		cout << "Exception: " << str << endl;
 	}
 };
 
-template <class T>
-class InvalidOperationException : public Exception<T> {
+class InvalidOperationException : public Exception {
 public:
-	InvalidOperationException(const char* s): Exception<T>(s){}
+	InvalidOperationException(const char* s): Exception(s){}
 };
 
-template <class T>
-class IndexOutOfBoundsException : public Exception<T> {
-	IndexOutOfBoundsException(const char* s): Exception<T>(s){}
+class IndexOutOfBoundsException : public Exception {
+	IndexOutOfBoundsException(const char* s): Exception(s){}
 };
 
-template <class T>
-class WrongSizeException : public Exception<T> {
-	WrongSizeException(const char* s) : Exception<T>(s) {}
+class WrongSizeException : public Exception {
+	WrongSizeException(const char* s) : Exception(s) {}
 };
 
-template <class T>
-class NonPositiveSizeException : public Exception<T> {
-	NonPositiveSizeException(const char* s): Exception<T>(s){}
+class NonPositiveSizeException : public Exception {
+	NonPositiveSizeException(const char* s): Exception(s){}
 };
 
-template <class T>
-class TooLargeSizeException : public Exception<T> {
-	TooLargeSizeException(const char* s) : Exception<T>(s){}
+class TooLargeSizeException : public Exception {
+	TooLargeSizeException(const char* s) : Exception(s){}
 };
 
-template <class T>
 class BaseMatrix {
 protected:
 	double** ptr;
@@ -65,19 +60,38 @@ public:
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
+		if (ptr != NULL){
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] == NULL){
+					width = 0;
+					ptr[i] = NULL;
+				}
+			}
+		} else {
+			height = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix(const BaseMatrix& M) {
 		height = M.height;
 		width = M.width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double [width];
-			for (int j = 0; j < width; j++) {
-				ptr[i][j] = M.ptr[i][j];
+		if (ptr != NULL){
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double [width];
+				if (ptr != NULL){
+					for (int j = 0; j < width; j++) {
+						ptr[i][j] = M.ptr[i][j];
+					}
+				} else {
+					width = 0;
+					ptr = NULL;
+				}
 			}
+		} else {
+			height = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix(double** arr, int Height = 4, int Width = 3) {
@@ -87,11 +101,21 @@ public:
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
-			for (int j = 0; j < width; j++) {
-				ptr[i][j] = arr[i][j];
+		if (ptr != NULL){
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] != NULL){
+					for (int j = 0; j < width; j++) {
+						ptr[i][j] = arr[i][j];
+					}
+				} else {
+					width = 0;
+					ptr[i] = NULL;
+				}
 			}
+		} else {
+			height = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix operator=(const BaseMatrix& M) {
@@ -106,11 +130,21 @@ public:
 			height = M.height;
 			width = M.width;
 			ptr = new double* [height];
-			for (int i = 0; i < height; i++) {
-				ptr[i] = new double [width];
-				for (int j = 0; j < width; j++) {
-					ptr[i][j] = M.ptr[i][j];
+			if (ptr != NULL){
+				for (int i = 0; i < height; i++) {
+					ptr[i] = new double [width];
+					if (ptr[i] != NULL){
+						for (int j = 0; j < width; j++) {
+							ptr[i][j] = M.ptr[i][j];
+						}
+					} else {
+						width = 0;
+						ptr[i] = NULL;
+					}
 				}
+			} else {
+				height = 0;
+				ptr = NULL;
 			}
 		}
 		return *this;
@@ -165,37 +199,61 @@ public:
 		}
 		width -= numzerocols;
 	}
-//	void removezerocolumns() {
-//		int newwidth = width;
-//		for (int j = width - 1; j >= 0; j--) {
-//			bool haszero = false;
-//			for (int i = 0; i < height; i++) {
-//				if (ptr[i][j] != 0) {
-//					haszero = true;
-//				}
-//				if (!haszero) {
-//					ptr[i][width] = ptr[i][j];
-//				}
-//			}
-//			if (!haszero) {
-//				for (int i = 0; i < height; i++) {
-//					for (int k = width - 1; k >=0; k--) {
-//						ptr[i][k] = ptr[i][k - 1];
-//					}
-//					ptr[i][0] = ptr[i][width];
-//				}
-//			}
-//		}
-//	}
+	BaseMatrix(const char* c) {
+		ifstream file(c);
+		if (!file.is_open()) {
+			throw Exception("failed to open file");
+		}
+		file >> height >> width;
+		if (height < 0 || width < 0) {
+			throw Exception("Non-Positive size of matrix");
+		}
+		ptr = new double* [height];
+		for (int i = 0; i < height; i++) {
+			ptr[i] = new double[width];
+		}
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				file >> ptr[i][j];
+			}
+		}
+		file.close();
+	}
+	void readfromfile(const char* c) {
+		ifstream file(c);
+		if (!file.is_open()) {
+			throw Exception("failed to open file");
+		}
+		file >> height >> width;
+		if (height < 0 || width < 0) {
+			throw Exception("Non-Positive size of matrix");
+		}
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				delete[] ptr[i];
+			}
+			delete[] ptr;
+			ptr = NULL;
+		}
+		ptr = new double* [height];
+		for (int i = 0; i < height; i++) {
+			ptr[i] = new double[width];
+		}
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				file >> ptr[i][j];
+			}
+		}
+		file.close();
+	}
 	friend ostream& operator << (ostream& ustream, BaseMatrix obj);
 	friend istream& operator >> (istream& ustream, BaseMatrix obj);
 };
 
-template <class T>
-class DerClass : public BaseMatrix<T> {
+class DerClass : public BaseMatrix {
 public:
-	DerClass(int Height, int Width) : BaseMatrix<T>(Height, Width) {};
-	DerClass(const DerClass& M) : BaseMatrix<T>(M) {};
+	DerClass(int Height, int Width) : BaseMatrix(Height, Width) {};
+	DerClass(const DerClass& M) : BaseMatrix(M) {};
 	void fillArray() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -213,8 +271,7 @@ public:
 	}
 };
 
-template <class T>
-ostream& operator << (ostream& ustream, BaseMatrix<T> obj) {
+ostream& operator << (ostream& ustream, BaseMatrix obj) {
 	if (typeid(ustream).name() == typeid(ofstream).name()) {
 		ustream << obj.height << " " << obj.width << endl;
 		for (int i = 0; i < obj.height; i++) {
@@ -233,8 +290,7 @@ ostream& operator << (ostream& ustream, BaseMatrix<T> obj) {
 	return ustream;
 }
 
-template <class T>
-istream& operator >> (istream& ustream, BaseMatrix<T> obj) {
+istream& operator >> (istream& ustream, BaseMatrix obj) {
 	if (typeid(ustream) == typeid(ifstream)) {
 		ustream >> obj.height >> obj.width;
 	}
@@ -253,38 +309,38 @@ ostream& my_manip(ostream& s) {
 	return s;
 }
 
-template <class T>
 int main() {
 	try {
-		BaseMatrix<T> matrix(-2, 3);
+		BaseMatrix matrix(-2, 3);
 	}
-	catch (Exception<T>& e) {
+	catch (Exception& e) {
 		cout << "\nException has been caught: " << "\n"; e.print();
 	}
 	cout << "\n";
-	//DerClass<T> Dm(4,3);
-	//Dm.fillArray();
-	//Dm.print();
+	DerClass Dm(4,3);
+	Dm.fillArray();
+	Dm.print();
 	//BaseMatrix<T> BM(4, 3);
 	//BM.input();
 	//BM.print();
 	//BM.removezerocolumns();
 	//BM.print();
-	BaseMatrix<T> M;
-	cin >> M;
-	ofstream fout; fout.open("in.txt");
-	if (fout.is_open()) {
-		fout << M;
-		fout.close();
-	}
-	ifstream fin("out.txt");
-	BaseMatrix<T> M1;
-	if (fin) {
-		fin >> M1;
-		fin.close();
-	}
-	cout << M1;
-	char c1;
-	cin >> c1;
+	//BaseMatrix<T> M;
+	//M.input();
+	//ofstream fout("E:\C++\OOP L1S2\OOP-L1S2\output\out.txt");
+	//if (fout.is_open()) {
+	//	fout << M;
+	//	fout.close();
+	//}
+	//
+	//ifstream fin("in.txt");
+	//BaseMatrix<T> M1;
+	//if (fin) {
+	//	fin >> M1;
+	//	fin.close();
+	//}
+	//M1.print();
+	//char c1;
+	//cin >> c1;
 	return 0;
 }
