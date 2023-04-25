@@ -1,8 +1,7 @@
 #include<iostream>
 #include<fstream>
-#include<cstring>
-#include<string.h>
 #include<typeinfo>
+#include<cstring>
 
 using namespace std;
 
@@ -21,7 +20,7 @@ public:
 	~Exception() {
 		delete[] str;
 	}
-	virtual void print() const {
+	virtual void print() {
 		cout << "Exception: " << str << endl;
 	}
 };
@@ -60,38 +59,19 @@ public:
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		if (ptr != NULL){
-			for (int i = 0; i < height; i++) {
-				ptr[i] = new double[width];
-				if (ptr[i] == NULL){
-					width = 0;
-					ptr[i] = NULL;
-				}
-			}
-		} else {
-			height = 0;
-			ptr = NULL;
+		for (int i = 0; i < height; i++) {
+			ptr[i] = new double[width];
 		}
 	}
 	BaseMatrix(const BaseMatrix& M) {
 		height = M.height;
 		width = M.width;
 		ptr = new double* [height];
-		if (ptr != NULL){
-			for (int i = 0; i < height; i++) {
-				ptr[i] = new double [width];
-				if (ptr != NULL){
-					for (int j = 0; j < width; j++) {
-						ptr[i][j] = M.ptr[i][j];
-					}
-				} else {
-					width = 0;
-					ptr = NULL;
-				}
+		for (int i = 0; i < height; i++) {
+			ptr[i] = new double [width];
+			for (int j = 0; j < width; j++) {
+				ptr[i][j] = M.ptr[i][j];
 			}
-		} else {
-			height = 0;
-			ptr = NULL;
 		}
 	}
 	BaseMatrix(double** arr, int Height = 4, int Width = 3) {
@@ -101,21 +81,11 @@ public:
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		if (ptr != NULL){
-			for (int i = 0; i < height; i++) {
-				ptr[i] = new double[width];
-				if (ptr[i] != NULL){
-					for (int j = 0; j < width; j++) {
-						ptr[i][j] = arr[i][j];
-					}
-				} else {
-					width = 0;
-					ptr[i] = NULL;
-				}
+		for (int i = 0; i < height; i++) {
+			ptr[i] = new double[width];
+			for (int j = 0; j < width; j++) {
+				ptr[i][j] = arr[i][j];
 			}
-		} else {
-			height = 0;
-			ptr = NULL;
 		}
 	}
 	BaseMatrix operator=(const BaseMatrix& M) {
@@ -130,21 +100,11 @@ public:
 			height = M.height;
 			width = M.width;
 			ptr = new double* [height];
-			if (ptr != NULL){
-				for (int i = 0; i < height; i++) {
-					ptr[i] = new double [width];
-					if (ptr[i] != NULL){
-						for (int j = 0; j < width; j++) {
-							ptr[i][j] = M.ptr[i][j];
-						}
-					} else {
-						width = 0;
-						ptr[i] = NULL;
-					}
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double [width];
+				for (int j = 0; j < width; j++) {
+					ptr[i][j] = M.ptr[i][j];
 				}
-			} else {
-				height = 0;
-				ptr = NULL;
 			}
 		}
 		return *this;
@@ -310,31 +270,31 @@ ostream& my_manip(ostream& s) {
 }
 
 int main() {
-	try {
-		BaseMatrix matrix(-2, 3);
-	}
-	catch (Exception& e) {
-		cout << "\nException has been caught: " << "\n"; e.print();
-	}
-	cout << "\n";
-	DerClass Dm(4,3);
-	Dm.fillArray();
-	Dm.print();
-	//BaseMatrix<T> BM(4, 3);
+	//try {
+	//	BaseMatrix matrix(-2, 3);
+	//}
+	//catch (Exception& e) {
+	//	cout << "\nException has been caught: " << "\n"; e.print();
+	//}
+	//cout << "\n";
+	//DerClass Dm(4,3);
+	//Dm.fillArray();
+	//Dm.print();
+	//BaseMatrix BM(4, 3);
 	//BM.input();
 	//BM.print();
 	//BM.removezerocolumns();
 	//BM.print();
-	//BaseMatrix<T> M;
+	//BaseMatrix M;
 	//M.input();
-	//ofstream fout("E:\C++\OOP L1S2\OOP-L1S2\output\out.txt");
+	//ofstream fout("out.txt");
 	//if (fout.is_open()) {
 	//	fout << M;
 	//	fout.close();
 	//}
 	//
 	//ifstream fin("in.txt");
-	//BaseMatrix<T> M1;
+	//BaseMatrix M1;
 	//if (fin) {
 	//	fin >> M1;
 	//	fin.close();
