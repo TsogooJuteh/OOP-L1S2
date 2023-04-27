@@ -125,7 +125,7 @@ public:
 		}
 		return *this;
 	}
-	bool isvowel(char c) {
+	inline bool isvowel(char c) {
 		c = tolower(c);
 		return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
 	}

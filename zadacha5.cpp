@@ -1,7 +1,6 @@
 #include<iostream>
 #include<fstream>
 #include<typeinfo>
-#include<cstring>
 
 using namespace std;
 
@@ -35,15 +34,16 @@ class IndexOutOfBoundsException : public Exception {
 };
 
 class WrongSizeException : public Exception {
+public:
 	WrongSizeException(const char* s) : Exception(s) {}
 };
 
-class NonPositiveSizeException : public Exception {
-	NonPositiveSizeException(const char* s): Exception(s){}
+class NonPositiveSizeException : public WrongSizeException {
+	NonPositiveSizeException(const char* s): WrongSizeException(s){}
 };
 
-class TooLargeSizeException : public Exception {
-	TooLargeSizeException(const char* s) : Exception(s){}
+class TooLargeSizeException : public WrongSizeException {
+	TooLargeSizeException(const char* s) : WrongSizeException(s){}
 };
 
 class BaseMatrix {
@@ -59,33 +59,88 @@ public:
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] == NULL) {
+					width = 0;
+					for (int k = 0; k < i; k++) {
+						delete[] ptr[k];
+					}
+					delete[] ptr;
+					ptr = NULL;
+					ptr[i] = NULL;
+				}
+			}
+		}
+		else {
+			width = 0;
+			height = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix(const BaseMatrix& M) {
 		height = M.height;
 		width = M.width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double [width];
-			for (int j = 0; j < width; j++) {
-				ptr[i][j] = M.ptr[i][j];
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] != NULL) {
+					for (int j = 0; j < width; j++) {
+						ptr[i][j] = M.ptr[i][j];
+					}
+				}
+				else {
+					width = 0;
+					for (int k = 0; k < i; k++) {
+						delete[] ptr[k];
+					}
+					delete[] ptr;
+					ptr = NULL;
+					ptr[i] = NULL;
+				}
 			}
+		}
+		else {
+			height = 0;
+			width = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix(double** arr, int Height = 4, int Width = 3) {
 		if (Height <= 0 || Width <= 0) {
 			throw Exception("Non-Positive size of matrix");
 		}
+		if (arr == NULL) {
+			throw Exception("NULL pointer");
+		}
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
-			for (int j = 0; j < width; j++) {
-				ptr[i][j] = arr[i][j];
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] != NULL) {
+					for (int j = 0; j < width; j++) {
+						ptr[i][j] = arr[i][j];
+					}
+				}
+				else {
+					width = 0;
+					for (int k = 0; k < i; k++) {
+						delete[] ptr[k];
+					}
+					delete[] ptr;
+					ptr = NULL;
+					ptr[i] = NULL;
+				}
 			}
+		}
+		else {
+			height = 0;
+			width = 0;
+			ptr = NULL;
 		}
 	}
 	BaseMatrix operator=(const BaseMatrix& M) {
@@ -100,11 +155,29 @@ public:
 			height = M.height;
 			width = M.width;
 			ptr = new double* [height];
-			for (int i = 0; i < height; i++) {
-				ptr[i] = new double [width];
-				for (int j = 0; j < width; j++) {
-					ptr[i][j] = M.ptr[i][j];
+			if (ptr != NULL) {
+				for (int i = 0; i < height; i++) {
+					ptr[i] = new double[width];
+					if (ptr[i] != NULL) {
+						for (int j = 0; j < width; j++) {
+							ptr[i][j] = M.ptr[i][j];
+						}
+					}
+					else {
+						width = 0;
+						for (int k = 0; k < i; k++) {
+							delete[] ptr[k];
+						}
+						delete[] ptr;
+						ptr = NULL;
+						ptr[i] = NULL;
+					}
 				}
+			}
+			else {
+				height = 0;
+				width = 0;
+				ptr = NULL;
 			}
 		}
 		return *this;
@@ -125,7 +198,7 @@ public:
 			}
 		}
 	}
-	virtual void print() {
+	virtual void print() const {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				cout << ptr[i][j] << " ";
@@ -169,8 +242,24 @@ public:
 			throw Exception("Non-Positive size of matrix");
 		}
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] == NULL) {
+					width = 0;
+					for (int k = 0; k < i; k++) {
+						delete[] ptr[k];
+					}
+					delete[] ptr;
+					ptr = NULL;
+					ptr[i] = NULL;
+				}
+			}
+		}
+		else {
+			height = 0;
+			width = 0;
+			ptr = NULL;
 		}
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -196,8 +285,24 @@ public:
 			ptr = NULL;
 		}
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++) {
-			ptr[i] = new double[width];
+		if (ptr != NULL) {
+			for (int i = 0; i < height; i++) {
+				ptr[i] = new double[width];
+				if (ptr[i] == NULL) {
+					width = 0;
+					for (int k = 0; k < i; k++) {
+						delete[] ptr[k];
+					}
+					delete[] ptr;
+					ptr = NULL;
+					ptr[i] = NULL;
+				}
+			}
+		}
+		else {
+			height = 0;
+			width = 0;
+			ptr = NULL;
 		}
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -206,8 +311,8 @@ public:
 		}
 		file.close();
 	}
-	friend ostream& operator << (ostream& ustream, BaseMatrix obj);
-	friend istream& operator >> (istream& ustream, BaseMatrix obj);
+	friend ostream& operator << (ostream& ustream, const BaseMatrix& obj);
+	friend istream& operator >> (istream& ustream, BaseMatrix& obj);
 };
 
 class DerClass : public BaseMatrix {
@@ -221,7 +326,7 @@ public:
 			}
 		}
 	}
-	void print() {
+	void print() const {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				cout << ptr[i][j] << " ";
@@ -231,7 +336,7 @@ public:
 	}
 };
 
-ostream& operator << (ostream& ustream, BaseMatrix obj) {
+ostream& operator << (ostream& ustream, const BaseMatrix& obj) {
 	if (typeid(ustream).name() == typeid(ofstream).name()) {
 		ustream << obj.height << " " << obj.width << endl;
 		for (int i = 0; i < obj.height; i++) {
@@ -250,7 +355,7 @@ ostream& operator << (ostream& ustream, BaseMatrix obj) {
 	return ustream;
 }
 
-istream& operator >> (istream& ustream, BaseMatrix obj) {
+istream& operator >> (istream& ustream, BaseMatrix& obj) {
 	if (typeid(ustream) == typeid(ifstream)) {
 		ustream >> obj.height >> obj.width;
 	}
