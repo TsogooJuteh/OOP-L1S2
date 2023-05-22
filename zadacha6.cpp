@@ -174,7 +174,6 @@ public:
         if (this->head) {
             Node<T>* tempNode = this->head;
             this->head = this->head->next;
-            delete tempNode;
             this->count--;
         }
         else {
@@ -250,14 +249,13 @@ public:
         int index = 0;
         while (temp != NULL) {
             if (typeIsEqualToProgrammer()) {
-                Programmer* casted = static_cast<Programmer*>(temp->getInfo());
+                Programmer* casted = dynamic_cast<Programmer*>(temp->getInfo());
                 cout << to_string(index) + ": " + casted->stringify() << endl;
             }
             temp = temp->next;
             index++;
         }
         if (temp == NULL) cout << "" << endl;
-        delete temp;
     }
     ofstream& save(ofstream& out) {
         if (head == nullptr) {
@@ -337,7 +335,7 @@ public:
         int index = 0;
         while (temp != NULL) {
             if (typeIsEqualToProgrammer()) {
-                Programmer* casted = static_cast<Programmer*>(temp->getInfo());
+                Programmer* casted = dynamic_cast<Programmer*>(temp->getInfo());
                 cout << to_string(index) + ": " + casted->stringify() << endl;
             }
             temp = temp->next;
@@ -351,13 +349,11 @@ public:
         newNode->setNext(this->head);
         this->head = newNode;
         this->count++;
-        delete newNode;
     }
     void pop() {
         if (this->head) {
             Node<T>* tempNode = this->head;
             this->head = this->head->next;
-            delete tempNode;
             this->count--;
         }
         else {
@@ -389,7 +385,6 @@ public:
         Node<T>* temp = head;
         head = head->next;
         count--;
-        delete temp;
     }
     void pop_back() {
         Node<T>* temp = head;
@@ -402,7 +397,6 @@ public:
             prev->next = nullptr;
         if (temp == head)
             head = nullptr;
-        delete temp;
         count--;
         /*Node<T>* temp = head;
         Node<T>* prev = nullptr;
@@ -469,7 +463,7 @@ public:
             T info = temporaryNode->getInfo();
 
             if (typeid(T) == typeid(Programmer*)) {
-                Programmer* casted = static_cast<Programmer*>(info);
+                Programmer* casted = dynamic_cast<Programmer*>(info);
                 if (casted->emailMatches(email)) {
                     cout << casted->stringify() << endl;
                     return;
@@ -484,7 +478,7 @@ public:
         while (temporaryNode != NULL) {
             T info = temporaryNode->getInfo();
             if (typeIsEqualToProgrammer()) {
-                Programmer* casted = static_cast<Programmer*>(info);
+                Programmer* casted = dynamic_cast<Programmer*>(info);
                 if (casted->getLevel() == level) {
                     cout << casted->stringify() << endl;
                     return;
@@ -502,7 +496,7 @@ public:
             out << count << '\n' << count << '\n';
             Node<T>* current = head;
 
-            while (current != tail) {
+            while (current != nullptr) {
                 out << current->info << ' ';
                 current = current->next;
                 out << "\n " << *(current->info);
